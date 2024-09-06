@@ -30,30 +30,32 @@ N = 500
 
 
 def getDataPoint(quote):
-    """ Produce all the needed values to generate a datapoint """
-    """ ------------- Update this function ------------- """
+    """ Get data point from quote """
     stock = quote['stock']
-    bid_price = float(quote['top_bid']['price'])
-    ask_price = float(quote['top_ask']['price'])
-    price = bid_price
+    bid_price = quote['top_bid']['price']
+    ask_price = quote['top_ask']['price']
+    price = (bid_price + ask_price) / 2
     return stock, bid_price, ask_price, price
-
 
 def getRatio(price_a, price_b):
     """ Get ratio of price_a and price_b """
-    """ ------------- Update this function ------------- """
-    return 1
+    if price_b == 0:
+        return 0  # Avoid division by zero
+    return price_a / price_b
 
+def main():
+    prices = {}
+    quotes = [
+        {'top_ask': {'price': 121.2, 'size': 36}, 'timestamp': '2019-02-11 22:06:30.572453', 'top_bid': {'price': 120.48, 'size': 109}, 'id': '0.109974697771', 'stock': 'ABC'},
+        {'top_ask': {'price': 121.68, 'size': 4}, 'timestamp': '2019-02-11 22:06:30.572453', 'top_bid': {'price': 117.87, 'size': 81}, 'id': '0.109974697771', 'stock': 'DEF'}
+    ]
 
-# Main
-if __name__ == "__main__":
-    # Query the price once every N seconds.
-    for _ in iter(range(N)):
-        quotes = json.loads(urllib.request.urlopen(QUERY.format(random.random())).read())
+    for quote in quotes:
+        stock, bid_price, ask_price, price = getDataPoint(quote)
+        prices[stock] = price
 
-        """ ----------- Update to get the ratio --------------- """
-        for quote in quotes:
-            stock, bid_price, ask_price, price = getDataPoint(quote)
-            print("Quoted %s at (bid:%s, ask:%s, price:%s)" % (stock, bid_price, ask_price, price))
+    ratio = getRatio(prices['ABC'], prices['DEF'])
+    print(f'The ratio of ABC to DEF is {ratio}')
 
-        print("Ratio %s" % getRatio(price, price))
+if __name__ == '__main__':
+    main()
